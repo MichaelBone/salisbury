@@ -32,6 +32,7 @@ def scrape_page(page)
 end
 
 base_url = "https://eservices.salisbury.sa.gov.au/ePathway/Production/Web"
+comment_url = "mailto:city@salisbury.sa.gov.au"
 
 puts "Retrieving the default page."
 default_url = "#{base_url}/default.aspx"
@@ -42,6 +43,8 @@ puts "Retrieving the enquiry lists page."
 link = default_page.link_with(:href => 'GeneralEnquiry/EnquiryLists.aspx')
 enquiry_lists_page = link.click
 
+# The Date tab defaults to a search range of the last 30 days.
+
 puts "Clicking the Date tab."
 enquiry_lists_form = enquiry_lists_page.forms.first
 enquiry_lists_form['__EVENTTARGET'] = 'ctl00$MainBodyContent$mGeneralEnquirySearchControl$mTabControl$tabControlMenu'
@@ -51,18 +54,39 @@ enquiry_search_page = agent.submit(enquiry_lists_form)
 puts "Clicking the Search button."
 enquiry_search_form = enquiry_search_page.forms.first
 button = enquiry_search_form.button_with(:value => "Search")
-enquiry_summary_view_page = agent.submit(enquiry_search_form, button)
+results_page = agent.submit(enquiry_search_form, button)
 
-puts enquiry_summary_view_page.body
+count = 0
+development_applications = []
+while results_page
+  count += 1
+  puts "Parsing the results on page #{count}."
 
-#url = "http://www.salisbury.sa.gov.au/Build/Planning_Building_and_Forms/Advertised_Development_Applications"
-#page = agent.get(url)
+  table = summary_page.root.at_css('.ContentPanel')
+  headers = table.css('th').collect { |th| th.inner_text.strip }
+  development_applications += table.css('.ContentPanel, .AlternateContentPanel').collect do |tr| 
+    tr.css('td').collect { |td| td.inner_text.strip }
+  end
+  
+  if count > 50  # safety precaution
+    puts "Stopping paging after #{count} pages."
+    break
+  end
 
-#get links to new developments
+  next_page_image = results_page.root.at_xpath("//td/input[contains(@src, 'nextPage')]")
+  results_page = nil
+  if next_page_image
+    next_page_path = next_page_img['onclick'].split(',').find { |e| e =~ /.*PageNumber=\d+.*/ }.gsub('"', '').strip
+    puts "Retrieving the next page: #{next_page_path}"
+    results_page = agent.get "#{base_url}/#{next_page_path}"
+  endif
+end
 
+puts "Complete."
+  
 apps_links = []
 
-links = page.search('a')
+links = enquiry_summary_view_page.search('a')
 links.each do |link|
   break
   href = link['href']

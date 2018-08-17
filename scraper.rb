@@ -42,7 +42,18 @@ puts "Retrieving the enquiry lists page."
 link = default_page.link_with(:href => 'GeneralEnquiry/EnquiryLists.aspx')
 enquiry_lists_page = link.click
 
-puts enquiry_lists_page.body
+puts "Clicking the Date tab."
+enquiry_lists_form = enquiry_lists_page.forms.first
+enquiry_lists_form['__EVENTTARGET'] = 'ctl00$MainBodyContent$mGeneralEnquirySearchControl$mTabControl$tabControlMenu'
+enquiry_lists_form['__EVENTARGUMENT'] = '1'
+enquiry_search_page = agent.submit(enquiry_lists_form)
+
+puts "Clicking the Search button."
+enquiry_search_form = enquiry_search_page.forms.first
+button = enquiry_search_form.button_with(:value => "Search")
+enquiry_summary_view_page = agent.submit(enquiry_search_form, button)
+
+puts enquiry_summary_view_page.body
 
 #url = "http://www.salisbury.sa.gov.au/Build/Planning_Building_and_Forms/Advertised_Development_Applications"
 #page = agent.get(url)

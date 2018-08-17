@@ -39,8 +39,7 @@ default_page = agent.get(default_url)
 default_page = agent.get(default_url + '?' + default_page.body.scan(/js=-?\d+/)[0])  # enable JavaScript
 
 puts "Retrieving the enquiry lists page."
-default_form = default_page.forms.first
-link = default_form.link_with(:href => 'GeneralEnquiry/EnquiryLists.aspx')
+link = default_page.link_with(:href => 'GeneralEnquiry/EnquiryLists.aspx')
 enquiry_lists_page = link.click
 
 puts enquiry_lists_page.body

@@ -35,8 +35,8 @@ base_url = "https://eservices.salisbury.sa.gov.au/ePathway/Production/Web"
 
 puts "Retrieving the default page."
 default_url = "#{base_url}/default.aspx"
-default_page = agent.get(url)
-default_page = agent.get(url + '?' + default_page.body.scan(/js=-?\d+/)[0])  # enable JavaScript
+default_page = agent.get(default_url)
+default_page = agent.get(default_url + '?' + default_page.body.scan(/js=-?\d+/)[0])  # enable JavaScript
 
 puts "Retrieving the enquiry lists page."
 default_form = default_page.forms.first

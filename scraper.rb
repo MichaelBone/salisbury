@@ -79,7 +79,7 @@ while results_page
     next_page_path = next_page_img['onclick'].split(',').find { |e| e =~ /.*PageNumber=\d+.*/ }.gsub('"', '').strip
     puts "Retrieving the next page: #{next_page_path}"
     results_page = agent.get "#{base_url}/#{next_page_path}"
-  endif
+  end
 end
 
 puts "Complete."

@@ -31,10 +31,22 @@ def scrape_page(page)
   end
 end
 
+base_url = "https://eservices.salisbury.sa.gov.au/ePathway/Production/Web"
 
-# Load summary page.
-url = "http://www.salisbury.sa.gov.au/Build/Planning_Building_and_Forms/Advertised_Development_Applications"
-page = agent.get(url)
+puts "Retrieving the default page."
+default_url = "#{base_url}/default.aspx"
+default_page = agent.get(url)
+default_page = agent.get(url + '?' + default_page.body.scan(/js=-?\d+/)[0])  # enable JavaScript
+
+puts "Retrieving the enquiry lists page."
+default_form = default_page.forms.first
+link = default_form.link_with(:href => 'GeneralEnquiry/EnquiryLists.aspx')
+enquiry_lists_page = link.click
+
+puts enquiry_lists_page.body
+
+#url = "http://www.salisbury.sa.gov.au/Build/Planning_Building_and_Forms/Advertised_Development_Applications"
+#page = agent.get(url)
 
 #get links to new developments
 
@@ -42,6 +54,7 @@ apps_links = []
 
 links = page.search('a')
 links.each do |link|
+  break
   href = link['href']
 
   if (href && href.start_with?("http://www.salisbury.sa.gov.au/Build/Planning_Building_and_Forms/Advertised_Development_Applications/") )
@@ -54,6 +67,3 @@ apps_links.each_with_index do |app_url,index|
   app = agent.get(app_url)
   scrape_page(app)
 end
-
-
-

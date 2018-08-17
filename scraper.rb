@@ -62,13 +62,13 @@ application_records = applications.collect do |application|
   application_record['info_url'] = "#{base_url}/default.aspx"
   application_record['description'] = application[headers.index('Application Description')]
   application_record['date_received'] = Date.strptime(application[headers.index('Lodgement Date')], '%d/%m/%Y').to_s
-  application_record['address'] = da_item[application.index('Site Address')]
+  application_record['address'] = application[headers.index('Site Address')]
   application_record['date_scraped'] = Date.today.to_s
   application_record['comment_url'] = comment_url
   if application_record['description'].strip == ''
     application_record['description'] = 'No description provided'
   end
-  application
+  application_record
 end
 
 # Insert the records into the database.
@@ -78,8 +78,9 @@ application_records.each do |application_record|
     ScraperWiki.save_sqlite(['council_reference'], application_record)
     if (ScraperWiki.select("* from data where `council_reference`='#{application_record['council_reference']}'").empty? rescue true)
       ScraperWiki.save_sqlite(['council_reference'], application_record)
+      puts "  Inserted: application \"" + application_record['council_reference'] + "\" with address \"" + application_record['address'] + "\" and description \"" + application_record['description'] + "\" into the database."
     else
-      puts "Skipping already saved record " + application_record['council_reference']
+      puts "  Skipped: application \"" + application_record['council_reference'] + "\" with address \"" + application_record['address'] + "\" and description \"" + application_record['description'] + "\" because it was already present in the database."
     end
   end
 end

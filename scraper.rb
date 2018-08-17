@@ -76,7 +76,7 @@ while results_page
   next_page_image = results_page.root.at_xpath("//td/input[contains(@src, 'nextPage')]")
   results_page = nil
   if next_page_image
-    next_page_path = next_page_img['onclick'].split(',').find { |e| e =~ /.*PageNumber=\d+.*/ }.gsub('"', '').strip
+    next_page_path = next_page_image['onclick'].split(',').find { |e| e =~ /.*PageNumber=\d+.*/ }.gsub('"', '').strip
     puts "Retrieving the next page: #{next_page_path}"
     results_page = agent.get "#{base_url}/#{next_page_path}"
   end

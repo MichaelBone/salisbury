@@ -12,8 +12,10 @@ default_page = agent.get(default_url)
 default_page = agent.get(default_url + '?' + default_page.body.scan(/js=-?\d+/)[0])  # enable JavaScript
 
 puts "Retrieving the enquiry lists page."
+puts default_page.body
 link = default_page.link_with(:href => '../Web/GeneralEnquiry/EnquiryLists.aspx')
-enquiry_lists_page = agent.click(link)
+puts "Clicking link.:
+enquiry_lists_page = link.click
 
 # The Date tab defaults to a search range of the last 30 days.
 
